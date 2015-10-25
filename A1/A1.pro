@@ -7,5 +7,9 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    my_osm.cpp
+
+HEADERS += \
+    my_osm.h
 
