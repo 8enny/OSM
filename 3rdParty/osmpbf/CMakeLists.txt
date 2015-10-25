@@ -1,6 +1,6 @@
 #   This file is part of the osmpbf library.
 #
-#   Copyright(c) 2012-2014 Oliver Groß.
+#   Copyright(c) 2014 Oliver Groß.
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public
@@ -17,67 +17,19 @@
 #   <http://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 2.8)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-project(osmpbf)
+project(osmpbf-suite)
+set(PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set(PACKAGE_VERSION 0.2)
 
-set(DEBUG_FLAGS " ${DEBUG_FLAGS} -Wall")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${DEBUG_FLAGS}")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${DEBUG_FLAGS}")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DEBUG_FLAGS}")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${DEBUG_FLAGS}")
+if(CMAKE_CROSSCOMPILING AND ANDROID)
+	set(LIBRARY_OUTPUT_PATH_ROOT "${CMAKE_BINARY_DIR}")
+endif(CMAKE_CROSSCOMPILING AND ANDROID)
 
-if(CMAKE_CROSSCOMPILING)
-	# find build host protoc and include generator function(s)
-	set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM BOTH)
-	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-	find_package(Protobuf)
-	set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM ONLY)
-	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/osmpbf/include)
 
-	set(PROTOBUF_INCLUDE_DIRS ${ANDROID_EXT_PATH_ROOT}/include)
-else(CMAKE_CROSSCOMPILING)
-	find_package(Protobuf)
-endif(CMAKE_CROSSCOMPILING)
+add_subdirectory(osmpbf)
 
-PROTOBUF_GENERATE_CPP(PROTO_SOURCES PROTO_HEADERS osmblob.proto osmformat.proto)
+add_subdirectory(examples EXCLUDE_FROM_ALL)
 
-find_package(ZLIB REQUIRED)
-
-include_directories(
-	${PROTOBUF_INCLUDE_DIRS}
-	${ZLIB_INCLUDE_DIRS}
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}
-)
-
-set(SOURCES_CPP
-	blobfile.cpp
-	osmfilein.cpp
-	abstractprimitiveinputadaptor.cpp
-	primitiveblockinputadaptor.cpp
-	iway.cpp
-	inode.cpp
-	irelation.cpp
-	iinfo.cpp
-	abstractprimitiveoutputadaptor.cpp
-	primitiveblockoutputadaptor.cpp
-	nodestreaminputadaptor.cpp
-	wayinputadaptor.cpp
-	relationinputadaptor.cpp
-	oway.cpp
-	onode.cpp
-	filter.cpp
-	xmlconverter.cpp
-	dataindex.cpp
-)
-
-# fetch all include headers
-file(GLOB_RECURSE INCLUDE_HEADERS include/*.h)
-
-add_library(${PROJECT_NAME} STATIC
-	${PROTO_SOURCES} ${PROTO_HEADERS}
-	${SOURCES_CPP} ${INCLUDE_HEADERS}
-)

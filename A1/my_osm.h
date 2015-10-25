@@ -2,7 +2,6 @@
 #define MYOSM_H
 
 #include <QObject>
-#include <QDebug>
 
 class MyOSM : public QObject
 {
